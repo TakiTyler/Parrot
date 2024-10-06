@@ -41,9 +41,6 @@ stt.set_service_url(STTurl)
 
 with open('./listen.mp3', 'rb') as f:
     sttres = stt.recognize(audio=f, content_type='audio/mp3', model='en-AU_Telephony').get_result()
-    #sttres = stt.recognize(audio=f, content_type='audio/wav', timestamps=True, word_confidence=True).get_result()
-    #sttres = stt.recognize(f, timestamps=True, content_type='audio/wav', inactivity_timeout=-1, word_confidence=True).get_result()
-
 sttText = sttres['results'][0]['alternatives'][0]['transcript']
 print(sttText)
-
+# ---------------------------------------------------------------------
