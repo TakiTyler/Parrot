@@ -63,7 +63,7 @@ def listenToSpeech():
     print("Ask Polly a Question!")
 
     # Calculating how long we record for (multiplying the buffer_frames gives us the time in seconds)
-    seconds = int(rates / buffer_frames * 3.5)
+    seconds = int(rates / buffer_frames * 3)
 
     # Frames will store the audio data as we are looping, eventually being turned into a .wav file
     frames = []
@@ -180,8 +180,8 @@ def increasePitch():
     newAudio.export("actuallySpeak.wav", format="wav")
 
     # Deleting the old file
-    os.remove('listen.wav')
-    os.remove('speak.wav')
+    #os.remove('listen.wav')
+    #os.remove('speak.wav')
 
     return
 
@@ -196,6 +196,7 @@ client = OpenAI()
 
 inputMessages = initializePolly()
 
+mouthClose()
 print("Press S to start")
 
 continueLoop = 'y'
@@ -236,7 +237,10 @@ while continueLoop != 'n':
         # Automatically play the sound
         for x in range(6):
             talking()
-
+        if pygame.mixer.music.get_busy() == False:
+            pygame.mixer.music.stop()
+            file = 'actuallySpeak.wav'
+            os.remove(file) 
         # Asking the user if they would like to ask polly another question
         continueLoop = input("Would you like to ask another question? (y/n): ")
 
@@ -261,5 +265,5 @@ while continueLoop != 'n':
 
         continueLoop = continueLoop.lower()
 
-        os.remove('actuallySpeak.wav')
+        #os.remove('actuallySpeak.wav')
         continue
