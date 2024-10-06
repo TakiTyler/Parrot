@@ -10,6 +10,7 @@ import pyaudio
 import wave
 from pydub import AudioSegment
 from playsound import playsound
+import speech_recognition as sr
 
 #text to speech api/url
 url = 'https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/535507f1-3e96-48ee-8ef1-860a70aa6888'
@@ -113,7 +114,7 @@ def initializePolly():
                                       "'squawk' at the start of your responses. Additionally, your language should be "
                                       "similar to that of a pirate, but still output coherent sentences, "
                                       "without being mean. Very rarely mention crackers. Limit your responses"
-                                      "to four sentences. Squawk does not count as a sentence"}
+                                      "to four sentences. Squawk does not count as a sentence. Pause after each squawk."}
     ]
 
     return messages
@@ -183,43 +184,56 @@ while continueLoop != 'n':
     # loop for detecting the key press of 's' to start
     while True:
         try:
-            if keyboard.is_pressed('s'):  # if key 'q' is pressed
+            if keyboard.is_pressed('s'):
                 print("The Parrot is now talking. Have fun!")
                 break  # finishing the loop
         except:
             break
 
-    listenToSpeech()
-
-    # Add the audio recording
-    userInput = STT()
-    print(userInput)
-
-    pollyOut = askPolly(messages=inputMessages, userInput=userInput)
-    print(pollyOut)
-
-    # pollyOut = ("Squawk! Eight planets there be in our solar system, arrr! From the closest to the sun, they be Mercury, Venus (Earth's sister!), Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.")
-    TTS(pollyInput=pollyOut)
-
-    # If listen to speech didn't work, we play an audio that says to try again
-
-    increasePitch()
-
-    # Automatically play the sound
-    playsound(r'C:\Users\takim\OneDrive\Documents\GitHub\Parrot\actuallySpeak.wav')
-    time.sleep(15)
-
-    # Asking the user if they would like to ask polly another question
-    continueLoop = input("Would you like to ask another question? (y/n): ")
-
-    continueLoop = continueLoop.lower()
+    try:
 
 
-## TODO
 
-# Change the pitching function
 
-# Research on arduino to python
+        listenToSpeech()
+
+        # Add the audio recording
+        userInput = STT()
+        print(userInput)
+
+        pollyOut = askPolly(messages=inputMessages, userInput=userInput)
+        print(pollyOut)
+
+        # pollyOut = ("Squawk! Eight planets there be in our solar system, arrr! From the closest to the sun, they be Mercury, Venus (Earth's sister!), Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.")
+        TTS(pollyInput=pollyOut)
+
+        # increasing the pitch of the audio to make it sound more "bird-like"
+        increasePitch()
+
+        # Automatically play the sound
+        playsound(r'C:\Users\takim\OneDrive\Documents\GitHub\Parrot\actuallySpeak.wav')
+
+        # Asking the user if they would like to ask polly another question
+        continueLoop = input("Would you like to ask another question? (y/n): ")
+
+        # Ensuring either y or Y works
+        continueLoop = continueLoop.lower()
+    except:
+        # Catch-all error in case anything goes wrong
+        pollyError = "I couldn't quite hear you, squawk! Please ask me again."
+
+        # Make the parrot say something went wrong
+        TTS(pollyInput=pollyError)
+
+        increasePitch()
+
+        playsound(r'C:\Users\takim\OneDrive\Documents\GitHub\Parrot\actuallySpeak.wav')
+
+        continueLoop = input("Would you like to ask another question? (y/n): ")
+
+        continueLoop = continueLoop.lower()
+        continue
+
 
 # Make the listening to audio process smoother
     # After a certain amount of time, stop the recording
