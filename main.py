@@ -11,6 +11,7 @@ from pydub import AudioSegment
 from playsound import playsound
 from pyfirmata2 import Arduino
 import threading
+import pygame
 
 # text to speech api/url
 url = 'https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/535507f1-3e96-48ee-8ef1-860a70aa6888'
@@ -62,7 +63,7 @@ def listenToSpeech():
     print("Ask Polly a Question!")
 
     # Calculating how long we record for (multiplying the buffer_frames gives us the time in seconds)
-    seconds = int(rates / buffer_frames * 5)
+    seconds = int(rates / buffer_frames * 3.5)
 
     # Frames will store the audio data as we are looping, eventually being turned into a .wav file
     frames = []
@@ -134,7 +135,8 @@ def initializePolly():
                                       "'squawk' at the start of your responses. Additionally, your language should be "
                                       "similar to that of a pirate, but still output coherent sentences, "
                                       "without being mean. Very rarely mention crackers. Limit your responses"
-                                      "to four sentences. Squawk does not count as a sentence. Pause after each squawk."}
+                                      "to four sentences. Squawk does not count as a sentence. Pause after each squawk."
+                                      "Only one squawk per response."}
     ]
 
     return messages
@@ -225,12 +227,15 @@ while continueLoop != 'n':
         # increasing the pitch of the audio to make it sound more "bird-like"
         increasePitch()
 
-        t1 = threading.Thread(target=playsound(r'C:\Users\takim\OneDrive\Documents\GitHub\Parrot\actuallySpeak.wav'))
-        t2 = threading.Thread(target=talkTime(6))
+        # t1 = threading.Thread(target=playsound(r'C:\Users\takim\OneDrive\Documents\GitHub\Parrot\actuallySpeak.wav'))
+        # t2 = threading.Thread(target=talkTime(6))
 
+        pygame.mixer.init()
+        pygame.mixer.music.load(r'C:\Users\takim\OneDrive\Documents\GitHub\Parrot\actuallySpeak.wav')
+        pygame.mixer.music.play()
         # Automatically play the sound
-        # for x in range(6):
-        #     talking()
+        for x in range(6):
+            talking()
 
         # Asking the user if they would like to ask polly another question
         continueLoop = input("Would you like to ask another question? (y/n): ")
@@ -238,7 +243,7 @@ while continueLoop != 'n':
         # Ensuring either y or Y works
         continueLoop = continueLoop.lower()
 
-        os.remove('actuallySpeak.wav')
+        #os.remove('actuallySpeak.wav')
     except:
         # Catch-all error in case anything goes wrong
         pollyError = "I couldn't quite hear you, squawk! Please ask me again."
