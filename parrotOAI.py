@@ -1,9 +1,11 @@
+import os
 import sys
 from openai import OpenAI
 import keyboard
 import time
 import pyaudio
 import wave
+from pydub import AudioSegment
 
 # declare and run the ai up here
 
@@ -33,7 +35,7 @@ while True:
 
 buffer_frames = 3200
 formating = pyaudio.paInt16
-rates = 16000
+rates = 16000 # Might change this to 44100 to match with CD standards
 
 audio = pyaudio.PyAudio()
 
@@ -48,8 +50,12 @@ stream = audio.open(
 
 print("NOW RECORDING")
 
+# Calculating how long we record for (multiplying the buffer_frames gives us the time in seconds)
 seconds = int(rates/buffer_frames*5)
+
+# Frames will store the audio data as we are looping, eventually being turned into a .wav file
 frames = []
+
 # Recording audio for the amount of seconds we have
 for i in range(0, seconds):
     data = stream.read(buffer_frames)
@@ -71,12 +77,6 @@ obj.setframerate(rates)
 obj.writeframes(b"".join(frames))
 obj.close()
 
-# Listen to the mic
-
-# Figure out how to stop listening when we're quiet
-
-    # If we can't figure it out, use a keypress to tell the computer that we're done
-
 '''
 response = client.chat.completions.create(
     model="gpt-3.5-turbo",
@@ -87,12 +87,6 @@ response = client.chat.completions.create(
 '''
 
 # ORDER OF COMMANDS
-
-# speech input
-
-    # wait for a keypress to initiate
-
-    # have a startup message?
 
 # speech -> text
 
@@ -112,7 +106,22 @@ response = client.chat.completions.create(
 
 # transfer the text to ibm / openai to translate into speech
 
-    #
+# Grabbing the audio file to modify
+audioFile = AudioSegment.from_wav('listen.wav')
+
+# Calculating how much we will increase the "sample rate" by
+increaseOctave = int(audioFile.frame_rate * 1.5)
+
+# Audio apparently becomes strange after changing the pitch, this fixes it
+newAudio = audioFile._spawn(audioFile.raw_data, overrides={'frame_rate': increaseOctave})
+
+# Converting sample rate
+print("WE ARE CONVERTING THE SAMPLE RATE, THIS MIGHT HAVE TO CHANGE DO NOT FORGET")
+newAudio = newAudio.set_frame_rate(44100) # may change this to 16000 depending on variable: rates
+
+newAudio.export("read.wav", format="wav")
+
+#sos.remove('listen.wav')
 
 # audio is played from computer
 
