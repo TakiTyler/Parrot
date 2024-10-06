@@ -11,6 +11,7 @@ import wave
 from pydub import AudioSegment
 from playsound import playsound
 import speech_recognition as sr
+from pyfirmata import Arduino, util, SERVO
 
 #text to speech api/url
 url = 'https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/535507f1-3e96-48ee-8ef1-860a70aa6888'
@@ -20,7 +21,28 @@ apikey = 'tbaNhfKLNJXDNShVRW7gVZ0RrjOErVhG6C5cBgH_EL75'
 STTurl = 'https://api.us-east.speech-to-text.watson.cloud.ibm.com/instances/094f1f6b-7a40-412f-838c-649a9dff7f76'
 STTapikey = 'KSxHhEgPDTCRaY3D-kN-OAwPHlFrwJYl__sP6xtd1tRA'
 
+#set up board and two servos
+board = Arduino('COM3')
 
+head = board.get_pin('d:9:s')
+beak = board.get_pin('d:8:s')
+
+
+
+
+def mouthOpen():
+    head.write(180)
+    beak.write(0)
+
+def mouthClose():
+    head.write(0)
+    beak.write(180)
+
+def talking():
+    mouthOpen()
+    time.sleep(1.25)
+    mouthClose()
+    time.sleep(1.25)
 
 def listenToSpeech():
     buffer_frames = 3200
@@ -211,6 +233,8 @@ while continueLoop != 'n':
         increasePitch()
 
         # Automatically play the sound
+        for x in range(6):
+            talking()
         playsound(r'C:\Users\takim\OneDrive\Documents\GitHub\Parrot\actuallySpeak.wav')
 
         # Asking the user if they would like to ask polly another question
@@ -226,7 +250,8 @@ while continueLoop != 'n':
         TTS(pollyInput=pollyError)
 
         increasePitch()
-
+        for x in range(2):
+            talking()
         playsound(r'C:\Users\takim\OneDrive\Documents\GitHub\Parrot\actuallySpeak.wav')
 
         continueLoop = input("Would you like to ask another question? (y/n): ")
