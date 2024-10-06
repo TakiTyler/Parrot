@@ -9,6 +9,7 @@ import time
 import pyaudio
 import wave
 from pydub import AudioSegment
+from playsound import playsound
 
 #text to speech api/url
 url = 'https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/535507f1-3e96-48ee-8ef1-860a70aa6888'
@@ -111,7 +112,8 @@ def initializePolly():
                                       "you are a parrot. You cannot be too formal when speaking and must add a "
                                       "'squawk' at the start of your responses. Additionally, your language should be "
                                       "similar to that of a pirate, but still output coherent sentences, "
-                                      "without being mean. Very rarely mention crackers"}
+                                      "without being mean. Very rarely mention crackers. Limit your responses"
+                                      "to four sentences. Squawk does not count as a sentence"}
     ]
 
     return messages
@@ -126,29 +128,35 @@ def askPolly(messages, userInput):
         model="gpt-3.5-turbo",
         messages=messages,
         temperature=0.7,
-        max_tokens=50,
+        max_tokens=100,
     )
 
-    return response
+    new_response = response.choices[0].message.content
+
+    # new_response = new_response.replace("'", "")
+
+    print("\nRESPONSE BELOW\n")
+
+    return new_response
 
 # Grabbing the audio file to modify
 def increasePitch():
-    audioFile = AudioSegment.from_wav('listen.wav')
+    audioFile = AudioSegment.from_wav('speak.wav')
 
     # Calculating how much we will increase the "sample rate" by
-    increaseOctave = int(audioFile.frame_rate * 1.5)
+    increaseOctave = int(audioFile.frame_rate * 1.2)
 
     # Audio apparently becomes strange after changing the pitch, this fixes it
     newAudio = audioFile._spawn(audioFile.raw_data, overrides={'frame_rate': increaseOctave})
 
     # Converting sample rate
-    print("WE ARE CONVERTING THE SAMPLE RATE, THIS MIGHT HAVE TO CHANGE DO NOT FORGET")
     newAudio = newAudio.set_frame_rate(44100)  # may change this to 16000 depending on variable: rates
 
-    newAudio.export("read.wav", format="wav")
+    newAudio.export("actuallySpeak.wav", format="wav")
 
     # Deleting the old file
     os.remove('listen.wav')
+    os.remove('speak.wav')
 
     return
 
@@ -168,25 +176,51 @@ inputMessages = initializePolly()
 
 print("Press S to start")
 
-# loop for detecting the key press of 's' to start
-while True:
-    try:
-        if keyboard.is_pressed('s'):  # if key 'q' is pressed
-            print("The Parrot is now talking. Have fun!")
-            break  # finishing the loop
-    except:
-        break
+continueLoop = 'y'
 
-listenToSpeech()
 
-# Add the audio recording
-userInput = STT()
+while continueLoop != 'n':
+    # loop for detecting the key press of 's' to start
+    while True:
+        try:
+            if keyboard.is_pressed('s'):  # if key 'q' is pressed
+                print("The Parrot is now talking. Have fun!")
+                break  # finishing the loop
+        except:
+            break
 
-pollyOut = askPolly(messages=inputMessages, userInput=userInput)
-print(pollyOut)
+    listenToSpeech()
 
-TTS(pollyInput=pollyOut)
+    # Add the audio recording
+    userInput = STT()
+    print(userInput)
 
-# If listen to speech didn't work, we play an audio that says to try again
+    pollyOut = askPolly(messages=inputMessages, userInput=userInput)
+    print(pollyOut)
 
-increasePitch()
+    # pollyOut = ("Squawk! Eight planets there be in our solar system, arrr! From the closest to the sun, they be Mercury, Venus (Earth's sister!), Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.")
+    TTS(pollyInput=pollyOut)
+
+    # If listen to speech didn't work, we play an audio that says to try again
+
+    increasePitch()
+
+    # Automatically play the sound
+    playsound(r'C:\Users\takim\OneDrive\Documents\GitHub\Parrot\actuallySpeak.wav')
+    time.sleep(15)
+
+    # Asking the user if they would like to ask polly another question
+    continueLoop = input("Would you like to ask another question? (y/n): ")
+
+    continueLoop = continueLoop.lower()
+
+
+## TODO
+
+# Change the pitching function
+
+# Research on arduino to python
+
+# Make the listening to audio process smoother
+    # After a certain amount of time, stop the recording
+    # Up to a maximum of... 10 seconds?
