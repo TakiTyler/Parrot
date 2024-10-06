@@ -35,12 +35,12 @@ STTapikey = 'KSxHhEgPDTCRaY3D-kN-OAwPHlFrwJYl__sP6xtd1tRA'
 
 #speech to text section
 # ---------------------------------------------------------------------
-STTauthenticator = IAMAuthenticator(STTapikey)
-stt = SpeechToTextV1(authenticator=STTauthenticator)
-stt.set_service_url(STTurl)
-
-with open('./listen.mp3', 'rb') as f:
-    sttres = stt.recognize(audio=f, content_type='audio/mp3', model='en-AU_Telephony').get_result()
-sttText = sttres['results'][0]['alternatives'][0]['transcript']
-print(sttText)
+# STTauthenticator = IAMAuthenticator(STTapikey)
+# stt = SpeechToTextV1(authenticator=STTauthenticator)
+# stt.set_service_url(STTurl)
+#
+# with open('./listen.mp3', 'rb') as f:
+#     sttres = stt.recognize(audio=f, content_type='audio/mp3', model='en-AU_Telephony').get_result()
+# sttText = sttres['results'][0]['alternatives'][0]['transcript']
+# print(sttText)
 # ---------------------------------------------------------------------
